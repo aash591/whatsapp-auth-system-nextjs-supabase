@@ -211,4 +211,4 @@ npm run build
 
 ---
 
-**Security Note**: This application implements enterprise-grade security features. Make sure to review and customize the security settings according to your specific requirements.
+**Security Note**: Make sure to review and customize the security settings according to your specific requirements.
