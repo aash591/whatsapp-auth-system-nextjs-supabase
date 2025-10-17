@@ -69,8 +69,12 @@ export function validateDoubleSubmitCSRF(request: NextRequest): boolean {
  */
 export function setCSRFCookie(response: NextResponse, token: string): void {
   // Set HttpOnly cookie for security with shorter expiration
+  // In development, don't use Secure flag for localhost
+  const isDevelopment = process.env.NODE_ENV === 'development';
+  const secureFlag = isDevelopment ? '' : 'Secure;';
+  
   response.headers.set(
     'Set-Cookie',
-    `csrf-token=${token}; Path=/; Max-Age=${10 * 60}; Secure; SameSite=Strict; HttpOnly`
+    `csrf-token=${token}; Path=/; Max-Age=${10 * 60}; ${secureFlag} SameSite=Strict; HttpOnly`
   );
 }

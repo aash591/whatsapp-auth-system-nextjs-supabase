@@ -86,8 +86,10 @@ export function useAuthenticatedRequest() {
     url: string,
     options: RequestInit = {}
   ): Promise<Response> => {
-    // If no CSRF token, try to fetch one first
+    // Use the existing CSRF token from state
     let currentToken = csrfToken;
+    
+    // Only fetch a new token if we don't have one at all
     if (!currentToken) {
       try {
         currentToken = await getCSRFToken();

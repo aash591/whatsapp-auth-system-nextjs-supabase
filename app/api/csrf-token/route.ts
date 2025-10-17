@@ -24,13 +24,17 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // Generate cryptographically secure CSRF token with session ID
-    // For CSRF protection, we need a session identifier
-    const sessionId = request.headers.get('x-session-id') || 
-                     request.cookies.get('auth_token')?.value || 
-                     crypto.randomBytes(16).toString('hex');
+    // Check if we already have a CSRF token in the cookie
+    const existingToken = request.cookies.get('csrf-token')?.value;
     
-    const token = generateCSRFToken();
+    let token: string;
+    if (existingToken) {
+      // Use existing token
+      token = existingToken;
+    } else {
+      // Generate new token only if none exists
+      token = generateCSRFToken();
+    }
 
     if (!token) {
       return createSecureErrorResponse('INTERNAL_ERROR', 500, {
@@ -45,11 +49,13 @@ export async function GET(request: NextRequest) {
       success: true,
       token,
       expiresIn: 15 * 60, // 15 minutes in seconds
-      message: 'CSRF token generated successfully'
+      message: existingToken ? 'CSRF token retrieved successfully' : 'CSRF token generated successfully'
     });
 
-    // Set CSRF cookie using Double Submit pattern
-    setCSRFCookie(response, token);
+    // Only set cookie if we generated a new token
+    if (!existingToken) {
+      setCSRFCookie(response, token);
+    }
 
     return response;
 
